@@ -1,0 +1,34 @@
+name: download-clinvar
+description: Download ClinVar XML file
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get ClinVar version
+      id: get-clinvar
+      run: echo "release-name=$(cat release-name.txt)" >> $GITHUB_OUTPUT
+      # cf. https://github.com/mamba-org/provision-with-micromamba#important
+      shell: bash -l {0}
+
+    - name: Check for cache downloaded ClinVar file
+      id: check-cache-clinvar-file
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.CLINVAR_DIR }}
+        key: download-clinvar-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}
+        lookup-only: true
+
+    - name: Cache downloaded ClinVar file
+      if: steps.check-cache-clinvar-file.outputs.cache-hit != 'true'
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.CLINVAR_DIR }}
+        key: download-clinvar-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}
+
+    - name: Download reference files if necessary
+      if: steps.check-cache-clinvar-file.outputs.cache-hit != 'true'
+      run: bash .github/actions/download-clinvar/run.sh
+      env:
+        RELEASE_NAME: "${{ steps.get-clinvar.outputs.release-name }}"
+      # cf. https://github.com/mamba-org/provision-with-micromamba#important
+      shell: bash -l {0}
