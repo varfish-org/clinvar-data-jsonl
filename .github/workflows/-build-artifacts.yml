@@ -1,0 +1,122 @@
+# Re-useable version of the "main" workflow such that it can be used both
+# for pull requests/CI and for creating the release.
+on:
+  workflow_call:
+    inputs:
+      # Whether to publish artifacts to the named release
+      publish-artifacts:
+        type: string
+      # The name of the release to publish artifacts to
+      release-name:
+        type: string
+      # The name of the workflow to use for cancelling previous runs
+      workflow-name:
+        type: string
+
+# cf. https://github.com/mamba-org/provision-with-micromamba#important
+defaults:
+  run:
+    shell: bash -l {0}
+
+env:
+  # Path to the directory with ClinVar download.
+  CLINVAR_DIR: /home/runner/work/clinvar
+  # Parse to the directory with clinvar-tsv output files.
+  OUTPUT_DIR: /home/runner/work/output
+  # Python version
+  PYTHON_VERSION: "3.11"
+  # clinvar-this package version
+  CLINVAR_THIS_VERSION: "0.9.0"
+  # Helper to get unique cache keys
+  CACHE_SEED: "0"
+  # Maximal number of RCVs to process (0 = no limit).
+  MAX_RCVS: "10000"
+  # Lower verbosity of TQDM progress bar
+  TQDM_MININTERVAL: "5"
+
+jobs:
+  cancel-previous:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - uses: khan/pull-request-workflow-cancel@1.0.0
+        with:
+          workflows: ${{ inputs.workflow-name }}
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+  # Download-ClinVar: Download "weekly" ClinVar XML file.
+  Download-ClinVar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/download-clinvar
+
+  # Convert-ClinVar: Convert ClinVar XML file to JSONL.
+  Convert-Clinvar:
+    runs-on: ubuntu-latest
+    needs: Download-ClinVar
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/free-disk-space
+      - uses: ./.github/actions/convert-clinvar
+        with:
+          publish-artifacts: ${{ inputs.publish-artifacts }}
+          release-name: ${{ inputs.release-name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Create-Phenotype-Links: Create phenotype links file.
+  Create-Phenotype-Links:
+    runs-on: ubuntu-latest
+    needs:
+      - Convert-Clinvar
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/free-disk-space
+      - uses: ./.github/actions/phenotype-links
+        with:
+          publish-artifacts: ${{ inputs.publish-artifacts }}
+          release-name: ${{ inputs.release-name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Create-Gene-Variant-Report: Create gene-wise variant summary report.
+  Create-Gene-Variant-Report:
+    runs-on: ubuntu-latest
+    needs:
+      - Convert-Clinvar
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/free-disk-space
+      - uses: ./.github/actions/gene-variant-report
+        with:
+          publish-artifacts: ${{ inputs.publish-artifacts }}
+          release-name: ${{ inputs.release-name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Create-Class-By-Freq: Create class-wise frequency report
+  Create-Class-By-Freq:
+    runs-on: ubuntu-latest
+    needs:
+      - Convert-Clinvar
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/free-disk-space
+      - uses: ./.github/actions/acmg-class-by-freq
+        with:
+          publish-artifacts: ${{ inputs.publish-artifacts }}
+          release-name: ${{ inputs.release-name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Extract-Vars: Extract variant information
+  Extract-Vars:
+    runs-on: ubuntu-latest
+    needs:
+      - Convert-Clinvar
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/free-disk-space
+      - uses: ./.github/actions/extract-vars
+        with:
+          publish-artifacts: ${{ inputs.publish-artifacts }}
+          release-name: ${{ inputs.release-name }}
+          token: ${{ secrets.GITHUB_TOKEN }}

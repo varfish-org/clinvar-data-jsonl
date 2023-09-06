@@ -1,0 +1,106 @@
+name: Check ClinVar FTP
+
+on:
+  workflow_dispatch:
+  schedule:
+    #         ┌───────────── minute (0 - 59)
+    #         │ ┌───────────── hour (0 - 23)
+    #         │ │ ┌───────────── day of the month (1 - 31)
+    #         │ │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #         │ │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #         │ │ │ │ │
+    #         │ │ │ │ │
+    #         │ │ │ │ │
+    #         * * * * *
+    #
+    # Human-readable: "At minute 37 past every 3rd hour on Monday."
+    #
+    # This is sufficient as there are only releases on Mondays.
+    - cron: '37 */3 * * 1'
+
+jobs:
+  Check-ClinVar-FTP:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: setup git config
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
+      - name: Create new PR if necessary
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          set -x
+
+          # Download ClinVar XML listing
+          curl https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/weekly_release/ \
+          > /tmp/lst.html
+
+          # Look for date of the "*-latest_weekly.xml.gz"
+          grep 'latest_weekly.xml.gz"' /tmp/lst.html \
+          | head -n 1 \
+          | cut -d '>' -f 21- \
+          | cut -d '<' -f 1 \
+          | cut -d ' ' -f 1 \
+          | tr -d '-' \
+          > /tmp/release-name.txt
+          release_name=$(cat /tmp/release-name.txt)
+
+          set +e
+
+          # Check whether we already have a tag for this
+          tag_name=clinvar-weekly-$release_name
+          git tag | grep "${tag_name}$" >/dev/null
+          tag_needed=$?
+          # Check whether we already have a branch for this
+          branch_name=release-${tag_name}
+          git branch -a | grep "${branch_name}$" >/dev/null
+          branch_needed=$?
+
+          # Only create a new branch if no tag and no branch exist yet.  The
+          # tag will be created together with the release on the main branch.
+          if [[ "$tag_needed" -eq 1 ]]; then
+            # The tag does not exist yet.  We may need to create a new branch
+            # and PR.
+            if [[ "$branch_needed" -eq 1 ]]; then
+              >&2 echo "Neither the tag nor the branch exist; create branch and PR"
+              git checkout -b $branch_name
+
+              cp /tmp/release-name.txt release-name.txt
+              git add release-name.txt
+
+              git commit -m "chore: weekly ClinVar release $release_name"
+              git push --set-upstream origin $branch_name
+            else
+              >&2 echo "The tag is missing but the branch exists"
+              git checkout $branch_name
+            fi
+
+            # If necessary, create new pull request and set it to auto-merge.
+            gh pr view >/dev/null
+            pr_needed=$?
+            if [ "$pr_needed" -eq 1 ]; then
+              >&2 echo "The tag is missing, branch exists here, now creating PR"
+
+              # Enforce that the "autorelease" ticket is present.
+              gh label create "autorelease" --color EDEDED --force
+
+              # Creat epull request and set to auto-merge.
+              set -e
+              gh pr create --fill --base main --head $branch_name --label autorelease
+              gh pr merge --auto --squash
+            else
+              set -e
+              >&2 echo "The tag is missing but the PR already exists"
+            fi
+          else
+            set -e
+            >&2 echo "The tag already exist, move on; nothing to do"
+          fi

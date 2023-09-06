@@ -1,0 +1,100 @@
+name: acmg-class-by-freq
+description: Create ACMG class by freq. file
+
+inputs:
+  publish-artifacts:
+    default: "false"
+    description: "Whether to publish artifacts to the named release"
+  release-name:
+    description: "The name of the release to publish artifacts to"
+  token:
+    description: "A Github PAT"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get ClinVar version
+      id: get-clinvar
+      run: |
+        echo "release-name=$(cat release-name.txt || echo 00-latest_weekly)" >> $GITHUB_OUTPUT
+      shell: bash -l {0}
+
+    - name: Check cache ACMG class by freq. output
+      id: check-cache-acmg-class-by-freq-output
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.OUTPUT_DIR }}/acmg-class-by-freq
+        key: acmg-class-by-freq-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RCVS }}-output
+        lookup-only: true
+
+    - name: Create requirements.txt
+      run: |
+        echo clinvar-this==${{ env.CLINVAR_THIS_VERSION }} > requirements.txt
+      shell: stdbuf -oL bash -l {0}
+
+    - name: Install python and cache dependencies
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: pip
+
+    - name: Install Python dependencies
+      run: pip install -r requirements.txt
+      shell: stdbuf -oL bash -l {0}
+
+    - name: Cache the generated ACMG class by freq.
+      if: |
+        (steps.check-cache-acmg-class-by-freq-output.outputs.cache-hit != 'true') ||
+        (inputs.publish-artifacts == 'true')
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.OUTPUT_DIR }}/acmg-class-by-freq
+        key: acmg-class-by-freq-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RCVS }}-output
+
+    - name: Retrieve cached ClinVar JSONL file
+      if: |
+        (steps.check-cache-acmg-class-by-freq-output.outputs.cache-hit != 'true')
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.OUTPUT_DIR }}/convert-clinvar
+        key: convert-clinvar-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RCVS }}-output
+        fail-on-cache-miss: true
+
+    - name: Run the ACMG class by freq. generation
+      if: steps.check-cache-acmg-class-by-freq-output.outputs.cache-hit != 'true'
+      run: bash .github/actions/acmg-class-by-freq/run.sh
+      env:
+        RELEASE_NAME: "${{ steps.get-clinvar.outputs.release-name }}"
+      shell: stdbuf -oL bash -l {0}
+
+    - name: Publish artifacts
+      if: inputs.publish-artifacts == 'true'
+      run: |
+        set -xv
+
+        version=$(\
+            grep ^dc.identifier \
+              ${{ env.OUTPUT_DIR }}/acmg-class-by-freq/spec.yaml \
+            | rev \
+            | cut -d - -f 1 \
+            | rev)
+
+        mkdir -p /tmp/for-upload/clinvar-data-acmg-class-by-freq-$version
+        cp ${{ env.OUTPUT_DIR }}/acmg-class-by-freq/*.jsonl.gz \
+          /tmp/for-upload/clinvar-data-acmg-class-by-freq-$version/.
+        ls -lhR /tmp/for-upload/clinvar-data-acmg-class-by-freq-$version
+        tar --directory=/tmp/for-upload --create --owner=0:0 --gzip \
+          --file /tmp/for-upload/clinvar-data-acmg-class-by-freq-$version.tar.gz \
+          clinvar-data-acmg-class-by-freq-$version
+
+        pushd /tmp/for-upload
+        sha256sum clinvar-data-acmg-class-by-freq-$version.tar.gz \
+        > clinvar-data-acmg-class-by-freq-$version.tar.gz.sha256
+        popd
+
+        gh release upload --clobber "clinvar-weekly-${{ inputs.release-name }}" \
+          /tmp/for-upload/clinvar-data-acmg-class-by-freq-$version.tar.gz*
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      shell: stdbuf -oL bash -l {0}
