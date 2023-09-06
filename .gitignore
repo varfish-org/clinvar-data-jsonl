@@ -1,0 +1,7 @@
+requirements.txt  # auto-generated
+
+*:Zone.Identifier
+
+*~
+.*.sw?
+/.vscode
