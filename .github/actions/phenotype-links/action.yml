@@ -81,7 +81,7 @@ runs:
             | rev)
 
         mkdir -p /tmp/for-upload/clinvar-data-phenotype-links-$version
-        cp ${{ env.OUTPUT_DIR }}/phenotype-links/*.jsonl \
+        cp ${{ env.OUTPUT_DIR }}/phenotype-links/*.jsonl.gz \
           /tmp/for-upload/clinvar-data-phenotype-links-$version/.
         ls -lhR /tmp/for-upload/clinvar-data-phenotype-links-$version
         tar --directory=/tmp/for-upload --create --owner=0:0 --gzip \

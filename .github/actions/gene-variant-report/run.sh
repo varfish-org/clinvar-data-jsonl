@@ -3,7 +3,7 @@
 set -euo pipefail
 set -x
 
-mkdir -p ${OUTPUT_DIR}/phenotype-links
+mkdir -p ${OUTPUT_DIR}/gene-variant-report
 
 df -h
 
@@ -13,7 +13,7 @@ clinvar-this data gene-variant-report \
     ${OUTPUT_DIR}/gene-variant-report/gene-variant-report.jsonl.gz
 
 
-cat >${OUTPUT_DIR}/phenotype-links/spec.yaml <<EOF
+cat >${OUTPUT_DIR}/gene-variant-report/spec.yaml <<EOF
 dc.identifier: clinvar-this/gene-variant-report-${CLINVAR_RELEASE/-/}+$CLINVAR_THIS_VERSION
 dc.title: clinvar-this gene-to-phenotype links JSONL file
 dc.creator: NCBI ClinVar Team

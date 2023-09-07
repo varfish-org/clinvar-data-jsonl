@@ -81,7 +81,7 @@ runs:
             | rev)
 
         mkdir -p /tmp/for-upload/clinvar-data-acmg-class-by-freq-$version
-        cp ${{ env.OUTPUT_DIR }}/acmg-class-by-freq/*.jsonl \
+        cp ${{ env.OUTPUT_DIR }}/acmg-class-by-freq/*.jsonl.gz \
           /tmp/for-upload/clinvar-data-acmg-class-by-freq-$version/.
         ls -lhR /tmp/for-upload/clinvar-data-acmg-class-by-freq-$version
         tar --directory=/tmp/for-upload --create --owner=0:0 --gzip \

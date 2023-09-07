@@ -81,7 +81,7 @@ runs:
             | rev)
 
         mkdir -p /tmp/for-upload/clinvar-data-jsonl-$version
-        cp ${{ env.OUTPUT_DIR }}/convert-clinvar/*.jsonl \
+        cp ${{ env.OUTPUT_DIR }}/convert-clinvar/*.jsonl.gz \
           /tmp/for-upload/clinvar-data-jsonl-$version/.
         ls -lhR /tmp/for-upload/clinvar-data-jsonl-$version
         tar --directory=/tmp/for-upload --create --owner=0:0 --gzip \

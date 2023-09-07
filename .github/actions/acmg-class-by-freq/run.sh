@@ -3,7 +3,7 @@
 set -euo pipefail
 set -x
 
-mkdir -p ${OUTPUT_DIR}/phenotype-links
+mkdir -p ${OUTPUT_DIR}/acmg-class-by-freq
 
 df -h
 
@@ -13,7 +13,7 @@ clinvar-this data acmg-class-by-freq \
     ${OUTPUT_DIR}/acmg-class-by-freq/clinvar-acmg-class-by-freq.jsonl.gz
 
 
-cat >${OUTPUT_DIR}/phenotype-links/spec.yaml <<EOF
+cat >${OUTPUT_DIR}/acmg-class-by-freq/spec.yaml <<EOF
 dc.identifier: clinvar-this/clinvar-acmg-class-by-freq-${CLINVAR_RELEASE/-/}+$CLINVAR_THIS_VERSION
 dc.title: clinvar-this gene-to-phenotype links JSONL file
 dc.creator: NCBI ClinVar Team

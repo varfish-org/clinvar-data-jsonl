@@ -81,7 +81,7 @@ runs:
             | rev)
 
         mkdir -p /tmp/for-upload/clinvar-data-gene-variant-report-$version
-        cp ${{ env.OUTPUT_DIR }}/gene-variant-report/*.jsonl \
+        cp ${{ env.OUTPUT_DIR }}/gene-variant-report/*.jsonl.gz \
           /tmp/for-upload/clinvar-data-gene-variant-report-$version/.
         ls -lhR /tmp/for-upload/clinvar-data-gene-variant-report-$version
         tar --directory=/tmp/for-upload --create --owner=0:0 --gzip \
