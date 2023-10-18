@@ -30,7 +30,7 @@ env:
   # Helper to get unique cache keys
   CACHE_SEED: "0"
   # Maximal number of RCVs to process (0 = no limit).
-  MAX_RCVS: "0"
+  MAX_RCVS: "10"
   # Lower verbosity of TQDM progress bar
   TQDM_MININTERVAL: "5"
 
