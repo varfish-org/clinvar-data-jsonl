@@ -31,7 +31,7 @@ fi
 
 # Actually download the file
 
-wget -O $CLINVAR_DIR/ClinVarFullRelease_00-latest_weekly.xml.gz \
-    https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/weekly_release/ClinVarFullRelease_00-latest_weekly.xml.gz
+wget -O $CLINVAR_DIR/ClinVarVCVRelease_00-latest_weekly.xml.gz \
+    https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/weekly_release/ClinVarVCVRelease_00-latest_weekly.xml.gz
 
 df -h
