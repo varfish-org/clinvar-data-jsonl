@@ -12,7 +12,7 @@ df -h
 
 # Check that the release name corresponds to the date of the current weekly release.
 
-curl https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/weekly_release/ \
+curl https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/RCV_xml_old_format/weekly_release/ \
 > /tmp/lst.html
 
 grep 'latest_weekly.xml.gz"' /tmp/lst.html \
@@ -32,6 +32,6 @@ fi
 # Actually download the file
 
 wget -O $CLINVAR_DIR/ClinVarFullRelease_00-latest_weekly.xml.gz \
-    https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/weekly_release/ClinVarFullRelease_00-latest_weekly.xml.gz
+    https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/RCV_xml_old_format/weekly_release/ClinVarFullRelease_00-latest_weekly.xml.gz
 
 df -h
