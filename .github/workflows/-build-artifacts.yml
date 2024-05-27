@@ -29,8 +29,8 @@ env:
   CLINVAR_THIS_VERSION: "0.14.3"
   # Helper to get unique cache keys
   CACHE_SEED: "0"
-  # Maximal number of RCVs to process (0 = no limit).
-  MAX_RCVS: "0"
+  # Maximal number of records to process (0 = no limit).
+  MAX_RECORDS: "0"
   # Lower verbosity of TQDM progress bar
   TQDM_MININTERVAL: "5"
 

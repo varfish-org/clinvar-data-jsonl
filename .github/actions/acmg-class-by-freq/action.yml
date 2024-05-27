@@ -25,7 +25,7 @@ runs:
       uses: actions/cache@v3
       with:
         path: ${{ env.OUTPUT_DIR }}/acmg-class-by-freq
-        key: acmg-class-by-freq-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RCVS }}-output
+        key: acmg-class-by-freq-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RECORDS }}-output
         lookup-only: true
 
     - name: Create requirements.txt
@@ -50,7 +50,7 @@ runs:
       uses: actions/cache@v3
       with:
         path: ${{ env.OUTPUT_DIR }}/acmg-class-by-freq
-        key: acmg-class-by-freq-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RCVS }}-output
+        key: acmg-class-by-freq-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RECORDS }}-output
 
     - name: Retrieve cached ClinVar JSONL file
       if: |
@@ -58,7 +58,7 @@ runs:
       uses: actions/cache@v3
       with:
         path: ${{ env.OUTPUT_DIR }}/convert-clinvar
-        key: convert-clinvar-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RCVS }}-output
+        key: convert-clinvar-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RECORDS }}-output
         fail-on-cache-miss: true
 
     - name: Run the ACMG class by freq. generation

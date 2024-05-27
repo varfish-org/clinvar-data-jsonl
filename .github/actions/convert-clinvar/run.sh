@@ -11,8 +11,8 @@ df -h
 clinvar-this data xml-to-jsonl \
     ${CLINVAR_DIR}/ClinVarFullRelease_00-latest_weekly.xml.gz \
     ${OUTPUT_DIR}/convert-clinvar/clinvar-full-release.jsonl.gz \
-    $(if [[ "$MAX_RCVS" != "" ]] && [[ "$MAX_RCVS" != "0" ]]; then \
-        echo --max-records $MAX_RCVS;
+    $(if [[ "$MAX_RECORDS" != "" ]] && [[ "$MAX_RECORDS" != "0" ]]; then \
+        echo --max-records $MAX_RECORDS;
     fi)
 
 
