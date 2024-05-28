@@ -49,7 +49,7 @@ jobs:
   Download-ClinVar:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/download-clinvar
 
   # Convert-ClinVar: Convert ClinVar XML file to JSONL.
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: Download-ClinVar
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/free-disk-space
       - uses: ./.github/actions/convert-clinvar
         with:
@@ -71,7 +71,7 @@ jobs:
     needs:
       - Convert-Clinvar
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/free-disk-space
       - uses: ./.github/actions/phenotype-links
         with:
@@ -85,7 +85,7 @@ jobs:
     needs:
       - Convert-Clinvar
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/free-disk-space
       - uses: ./.github/actions/gene-variant-report
         with:
@@ -99,7 +99,7 @@ jobs:
     needs:
       - Convert-Clinvar
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/free-disk-space
       - uses: ./.github/actions/acmg-class-by-freq
         with:
@@ -113,7 +113,7 @@ jobs:
     needs:
       - Convert-Clinvar
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/free-disk-space
       - uses: ./.github/actions/extract-vars
         with:
