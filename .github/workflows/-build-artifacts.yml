@@ -26,11 +26,11 @@ env:
   # Python version
   PYTHON_VERSION: "3.11"
   # clinvar-this package version
-  CLINVAR_THIS_VERSION: "0.14.3"
+  CLINVAR_THIS_VERSION: "0.15.5"
   # Helper to get unique cache keys
   CACHE_SEED: "0"
-  # Maximal number of RCVs to process (0 = no limit).
-  MAX_RCVS: "0"
+  # Maximal number of records to process (0 = no limit).
+  MAX_RECORDS: "0"
   # Lower verbosity of TQDM progress bar
   TQDM_MININTERVAL: "5"
 
