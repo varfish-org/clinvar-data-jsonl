@@ -28,7 +28,7 @@ env:
   # clinvar-this package version
   CLINVAR_THIS_VERSION: "0.18.0"
   # Helper to get unique cache keys
-  CACHE_SEED: "0"
+  CACHE_SEED: "1"
   # Maximal number of records to process (0 = no limit).
   MAX_RECORDS: "0"
   # Lower verbosity of TQDM progress bar
