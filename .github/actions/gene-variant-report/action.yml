@@ -22,7 +22,7 @@ runs:
 
     - name: Check cache gene variant report output
       id: check-cache-gene-variant-report-output
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.OUTPUT_DIR }}/gene-variant-report
         key: gene-variant-report-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RECORDS }}-output
@@ -47,7 +47,7 @@ runs:
       if: |
         (steps.check-cache-gene-variant-report-output.outputs.cache-hit != 'true') ||
         (inputs.publish-artifacts == 'true')
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.OUTPUT_DIR }}/gene-variant-report
         key: gene-variant-report-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RECORDS }}-output
@@ -55,7 +55,7 @@ runs:
     - name: Retrieve cached ClinVar JSONL file
       if: |
         (steps.check-cache-gene-variant-report-output.outputs.cache-hit != 'true')
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.OUTPUT_DIR }}/convert-clinvar
         key: convert-clinvar-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}-${{ env.CLINVAR_THIS_VERSION }}-${{ env.MAX_RECORDS }}-output

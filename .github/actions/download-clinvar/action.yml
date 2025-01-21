@@ -12,7 +12,7 @@ runs:
 
     - name: Check for cache downloaded ClinVar file
       id: check-cache-clinvar-file
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.CLINVAR_DIR }}
         key: download-clinvar-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}
@@ -20,7 +20,7 @@ runs:
 
     - name: Cache downloaded ClinVar file
       if: steps.check-cache-clinvar-file.outputs.cache-hit != 'true'
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.CLINVAR_DIR }}
         key: download-clinvar-${{ env.CACHE_SEED }}-${{ steps.get-clinvar.outputs.release-name }}
