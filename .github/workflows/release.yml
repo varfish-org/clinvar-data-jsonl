@@ -18,7 +18,7 @@ jobs:
       release-name: ${{ steps.check-release.outputs.release-name }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: setup git config
         run: |
@@ -82,7 +82,7 @@ jobs:
     if: needs.Create-Release.outputs.is-release == 'true'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Mark release as published
         run: |
