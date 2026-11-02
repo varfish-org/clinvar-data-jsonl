@@ -80,15 +80,15 @@ runs:
             | cut -d - -f 1 \
             | rev)
 
-        mkdir -p /tmp/for-upload/clinvar-data-jsonl-$version
+        mkdir -p $RUNNER_TEMP/for-upload/clinvar-data-jsonl-$version
         cp ${{ env.OUTPUT_DIR }}/convert-clinvar/*.jsonl.gz \
-          /tmp/for-upload/clinvar-data-jsonl-$version/.
-        ls -lhR /tmp/for-upload/clinvar-data-jsonl-$version
-        tar --directory=/tmp/for-upload --create --owner=0:0 --gzip \
-          --file /tmp/for-upload/clinvar-data-jsonl-$version.tar.gz \
+          $RUNNER_TEMP/for-upload/clinvar-data-jsonl-$version/.
+        ls -lhR $RUNNER_TEMP/for-upload/clinvar-data-jsonl-$version
+        tar --directory=$RUNNER_TEMP/for-upload --create --owner=0:0 --gzip \
+          --file $RUNNER_TEMP/for-upload/clinvar-data-jsonl-$version.tar.gz \
           clinvar-data-jsonl-$version
 
-        pushd /tmp/for-upload
+        pushd $RUNNER_TEMP/for-upload
         sha256sum clinvar-data-jsonl-$version.tar.gz \
         > clinvar-data-jsonl-$version.tar.gz.sha256
 
@@ -98,7 +98,7 @@ runs:
         popd
 
         gh release upload --clobber "clinvar-weekly-${{ inputs.release-name }}" \
-          /tmp/for-upload/clinvar-data-jsonl-$version.tar.gz.*
+          $RUNNER_TEMP/for-upload/clinvar-data-jsonl-$version.tar.gz.*
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       shell: stdbuf -oL bash -l {0}
